@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(45deg, #081d4b, #1c1a8a);
+            overflow: hidden;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(12, 12, 12, 0.2);
+            width: 500px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        input {
+            width: 80%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 16px;
+            background: #0729ee;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.3s;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .task-section {
+            margin-top: 10px;
+            text-align: left;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #722323;
+            transition: background 0.3s;
+            font-size: 18px;
+        }
+        li:hover {
+            background: #f1f1f1;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: green;
+        }
+        .not-completed {
+            color: red;
+            font-weight: bold;
+        }
+        .delete-btn, .edit-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+        .delete-btn {
+            background: red;
+            color: white;
+        }
+        .delete-btn:hover {
+            background: rgb(218, 74, 74);
+        }
+        .edit-btn {
+            background: rgb(54, 238, 29);
+            color: white;
+        }
+        .edit-btn:hover {
+            background: darkorange;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .bubble {
+            position: absolute;
+            bottom: -50px;
+            background: rgba(250, 248, 248, 0.2);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            animation: floatUp 10s infinite linear;
+        }
+        @keyframes floatUp {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+    <div class="container">
+        <h2>To-Do List</h2>
+        <input type="text" id="taskInput" placeholder="Add a new task...">
+        <input type="date" id="taskDate">
+        <button onclick="addTask()">Add</button>
+        
+        
+        <div class="task-section" id="taskHistory"></div>
+    </div>
+
+    <script>
+        // Generate animated bubbles
+        function createBubbles() {
+            const bg = document.querySelector(".animated-bg");
+            for (let i = 0; i < 30; i++) {
+                let bubble = document.createElement("div");
+                bubble.classList.add("bubble");
+                let size = Math.random() * 20 + 10;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${Math.random() * 100}%`;
+                bubble.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                bg.appendChild(bubble);
+            }
+        }
+        createBubbles();
+
+        let tasks = {};
+
+        function addTask() {
+            let taskInput = document.getElementById("taskInput");
+            let taskDate = document.getElementById("taskDate").value;
+            if (taskInput.value.trim() === "" || taskDate === "") return;
+
+            if (!tasks[taskDate]) {
+                tasks[taskDate] = [];
+                let section = document.createElement("div");
+                section.setAttribute("id", `section-${taskDate}`);
+                section.innerHTML = `<h3>${taskDate}</h3><ul id='list-${taskDate}'></ul>`;
+                document.getElementById("taskHistory").prepend(section);
+            }
+
+            let ul = document.getElementById(`list-${taskDate}`);
+            let li = document.createElement("li");
+
+            let taskText = document.createElement("span");
+            taskText.textContent = taskInput.value;
+
+            let completedCheckbox = document.createElement("input");
+            completedCheckbox.type = "checkbox";
+            completedCheckbox.onclick = function () {
+                if (completedCheckbox.checked) {
+                    notCompletedCheckbox.checked = false;
+                    taskText.classList.add("completed");
+                    taskText.classList.remove("not-completed");
+                } else {
+                    taskText.classList.remove("completed");
+                }
+            };
+
+            let notCompletedCheckbox = document.createElement("input");
+            notCompletedCheckbox.type = "checkbox";
+            notCompletedCheckbox.onclick = function () {
+                if (notCompletedCheckbox.checked) {
+                    completedCheckbox.checked = false;
+                    taskText.classList.add("not-completed");
+                    taskText.classList.remove("completed");
+                } else {
+                    taskText.classList.remove("not-completed");
+                }
+            };
+
+            let editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+            editButton.classList.add("edit-btn");
+            editButton.onclick = function () {
+                let newText = prompt("Edit your task:", taskText.textContent);
+                if (newText !== null && newText.trim() !== "") {
+                    taskText.textContent = newText;
+                }
+            };
+
+            let deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.classList.add("delete-btn");
+            deleteButton.onclick = function () {
+                li.remove();
+            };
+
+            li.appendChild(taskText);
+            li.appendChild(completedCheckbox);
+            li.appendChild(document.createTextNode(" Completed "));
+            li.appendChild(notCompletedCheckbox);
+            li.appendChild(document.createTextNode(" Not Completed "));
+            li.appendChild(editButton);
+            li.appendChild(deleteButton);
+            ul.appendChild(li);
+
+            tasks[taskDate].push(taskInput.value);
+            taskInput.value = "";
+        }
+    </script>
+</body>
+</html>
