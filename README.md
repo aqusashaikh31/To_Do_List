@@ -37,3 +37,4 @@ This is a simple **To-Do List** web application that allows users to add, edit, 
 ## License
 This project is open-source and free to use.
 
+<img width="634" height="705" alt="image" src="https://github.com/user-attachments/assets/6fbb9600-1ca9-4af1-92e5-3c9ad8e520bb" />
